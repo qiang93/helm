@@ -29,7 +29,7 @@ ingress:
   paths: []
 
   hosts:
-    - nginx.szdd01.com
+    - www.abc.com
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
