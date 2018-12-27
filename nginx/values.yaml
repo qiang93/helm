@@ -5,14 +5,15 @@
 namespace: default
 replicaCount: 1
 
+
 image:
+  code_repository: 47.244.24.216/code/demo
+  code_tag: 1.5
+  code_pullPolicy: IfNotPresent
+
   repository: 47.244.24.216/library/nginx
   tag: 1.13
   pullPolicy: IfNotPresent
-
-index: >-
-  <h1>Hello</h1>
-  <p>This is a test</p>
 
 nameOverride: ""
 fullnameOverride: ""
@@ -48,11 +49,15 @@ resources:
     memory: 128Mi
 
 volumeMounts:
+  - mountPath: /var/web
+    name: code
   - mountPath: /usr/local/openresty/nginx/conf/nginx.conf
     name: nginx-conf-volume
     subPath: nginx.conf
 
 volumes:
+  - name: code
+    emptyDir: {}
   - name: nginx-conf-volume
     configMap:
       name: deve-nginx-conf

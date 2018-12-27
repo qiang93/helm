@@ -6,6 +6,10 @@ replicaCount: 1
 namespace: default
 
 image:
+  code_repository: 47.244.24.216/code/demo
+  code_tag: 1.2
+  code_pullPolicy: IfNotPresent
+
   repository: 47.244.24.216/library/php
   tag: 7.1.18
   pullPolicy: IfNotPresent
@@ -43,6 +47,8 @@ resources:
     memory: 2Gi
 
 volumeMounts:
+  - mountPath: /var/web
+    name: code
   - mountPath: /usr/local/php7/etc/php-fpm.conf
     name: phpfpm-conf-volume
     subPath: php-fpm.conf
@@ -51,6 +57,8 @@ volumeMounts:
     subPath: php.ini
 
 volumes:
+  - name: code
+    emptyDir: {}
   - name: phpfpm-conf-volume
     configMap:
       name: deve-phpfpm-conf

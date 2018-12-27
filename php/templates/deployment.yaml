@@ -20,6 +20,14 @@ spec:
         app.kubernetes.io/name: {{ include "php.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      initContainers:
+        - name: code
+          image: "{{ .Values.image.code_repository }}:{{ .Values.image.code_tag }}"
+          imagePullPolicy: {{ .Values.image.code_pullPolicy }}
+          command: ["sh", "-c", "mv /var/web/www /data"]
+          volumeMounts:
+          - mountPath: /data
+            name: code
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
