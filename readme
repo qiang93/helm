@@ -1,3 +1,6 @@
+1.修改Chart.yaml中版本号为代码构建的版本号
+2.个性value.yaml中配置后直接使用helm upgrade进行更新
+
 安装helm push插件
 helm plugin install https://github.com/chartmuseum/helm-push
 
