@@ -22,7 +22,7 @@ spec:
     spec:
       initContainers:
         - name: code
-          image: "{{ .Values.image.code_repository }}:{{ .Values.image.code_tag }}"
+          image: "{{ .Values.image.code_repository }}:{{ .Chart.Version }}"
           imagePullPolicy: {{ .Values.image.code_pullPolicy }}
           command: ["sh", "-c", "mv /var/web/www /data"]
           volumeMounts:
@@ -37,7 +37,17 @@ spec:
               containerPort: 9000
               protocol: TCP
           volumeMounts:
+          {{- if .Values.phpfpm }}
+            - mountPath: /usr/local/php7/etc/php-fpm.conf
+              name: phpfpm-conf-volume
+              subPath: php-fpm.conf
+          {{- end }}
+          {{- if .Values.phpini }}
+            - mountPath: /usr/local/php7/etc/php.ini
+              name: php-ini-volume
+              subPath: php.ini
             {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- end }}
           readinessProbe:
             tcpSocket:
               port: 9000
@@ -54,6 +64,24 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+      {{- if .Values.phpfpm }}
+        - name: phpfpm-conf-volume
+          configMap:
+            name: {{ include "php.fullname" . }}-php-fpm.conf
+            items:
+            - key: php-fpm.conf
+              path: php-fpm.conf
+      {{- end }}
+      {{- if .Values.phpini }}
+        - name: php-ini-volume
+          configMap:
+            name: {{ include "php.fullname" . }}-php.ini
+            items:
+            - key: php.ini
+              path: php.ini
+        {{- toYaml .Values.volumes | nindent 8 }}
+      {{- end }}
     {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
@@ -62,5 +90,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      volumes:
-        {{- toYaml .Values.volumes | nindent 8 }}

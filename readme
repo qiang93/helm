@@ -13,11 +13,24 @@ helm push --username=admin --password=Harbor12345 php myrepo
 检查helm语法
 helm lint ./php
 
-安装本地仓库helm的chart,指定版本--version 0.3.5
+安装本地仓库helm的chart,指定版本--version 1.7
 helm install ./php -n php
+helm install -n nginx --version 1.7 nginx
 
 删除通过helm创建的服务
 helm del --purge php
+
+升级版本
+helm ls
+格式：helm upgrade [应用名称] [chart]
+helm upgrade nginx nginx  #不指定--version升级到Chart.yml中定义的version的版本
+helm upgrade --version 1.8 nginx nginx
+
+可以通过Helm history查看一个Release的多次更改
+helm history nginx
+
+如果更新后的程序由于某些原因运行有问题，我们则需要回退到旧版本的应用，可以采用下面的命令进行回退。其中的参数1是前面Helm history中查看到的Release的更改历史
+helm rollback nginx 1
 
 升级传递变量设置和发布tag
 helm upgrade --install jenkins \
@@ -25,3 +38,9 @@ helm upgrade --install jenkins \
         --set image.repository=${DOCKER_REG}/jenkins \
         --set image.tag='lts-k8s' \
         ./helm/jenkins-k8s
+
+代码打包方式
+cat > Dockerfile << EOF
+FROM busybox:latest
+COPY . /var/web/www
+EOF

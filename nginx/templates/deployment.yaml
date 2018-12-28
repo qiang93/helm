@@ -22,7 +22,7 @@ spec:
     spec:
       initContainers:
         - name: code
-          image: "{{ .Values.image.code_repository }}:{{ .Values.image.code_tag }}"
+          image: "{{ .Values.image.code_repository }}:{{ .Chart.Version }}"
           imagePullPolicy: {{ .Values.image.code_pullPolicy }}
           command: ["sh", "-c", "mv /var/web/www /data"]
           volumeMounts:
@@ -37,7 +37,16 @@ spec:
               containerPort: 80
               protocol: TCP
           volumeMounts:
+          {{- if .Values.vhost }}
+            - mountPath: /usr/local/openresty/nginx/conf/vhosts
+              name: nginx-vhost-volume
+          {{- end }}
+          {{- if .Values.nginx }}
+            - mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+              name: nginx-conf-volume
+              subPath: nginx.conf
             {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- end }}
           readinessProbe:
             tcpSocket:
               port: 80
@@ -55,7 +64,20 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
+      {{- if .Values.vhost }}
+        - name: nginx-vhost-volume
+          configMap:
+            name: {{ include "nginx.fullname" . }}-vhost.conf
+      {{- end }}
+      {{- if .Values.nginx }}
+        - name: nginx-conf-volume
+          configMap:
+            name: {{ include "nginx.fullname" . }}-nginx.conf
+            items:
+            - key: nginx.conf
+              path: nginx.conf
         {{- toYaml .Values.volumes | nindent 8 }}
+      {{- end }}
     {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
